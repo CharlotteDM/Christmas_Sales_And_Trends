@@ -47,6 +47,36 @@ print(shapiro_test)
 
 # Test ANOVA
 anova_result <- aov(TotalPrice ~ Weather, data = christmas_sales)
+summary(anova_result) #no statistically significant differences
 
-# Podsumowanie wyników testu ANOVA
-summary(anova_result)
+
+
+#time and sales
+#creating new column
+christmas_sales$Hour <- as.numeric(format(strptime(christmas_sales$Time, format = "%H:%M:%S"), "%H"))
+
+#average sale by hour
+sales_by_hour <- christmas_sales %>%
+  group_by(Hour) %>%
+  summarise(mean_sales = mean(TotalPrice, na.rm = TRUE))
+
+
+ggplot(sales_by_hour, aes(x = Hour, y = mean_sales)) +
+  geom_line(color = "darkgreen", size = 1) + 
+  geom_point(color = "darkred", size = 2) +
+  geom_text(aes(label = round(mean_sales, 0)), color = "darkred", size = 3, vjust = -0.5) +  
+  labs(
+    title = "Average Sales by Hour of the Day", 
+    x = "Hour of the Day", 
+    y = "Average Sales Value",
+    caption = "Source: https://www.kaggle.com/datasets/ibikunlegabriel/christmas-sales-and-trends/data"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(color = "darkred", size = 14, face = "bold", hjust = 0.5), 
+    axis.title.x = element_text(color = "darkred", size = 12), 
+    axis.title.y = element_text(color = "darkred", size = 12), 
+    plot.caption = element_text(hjust = 0.5, size = 10) 
+  )
+
+
