@@ -6,7 +6,7 @@ print(path)
 
 setwd(path)
 
-#Source of data: https://www.kaggle.com/datasets/ibikunlegabriel/christmas-sales-and-trends
+#Source of data: https://zoomcharts.com/en/microsoft-power-bi-custom-visuals/challenges/onyx-data-december-2023?utm_source=challenge&utm_medium=onyxdata&utm_campaign=onyxdata_web_december&utm_term=submit&utm_content=registration
 christmas_sales <- read.csv("Christmas Sales and Trends.csv", stringsAsFactors = FALSE)
 
 colnames(christmas_sales)
@@ -69,7 +69,7 @@ ggplot(sales_by_hour, aes(x = Hour, y = mean_sales)) +
     title = "Average Sales by Hour of the Day", 
     x = "Hour of the Day", 
     y = "Average Sales Value",
-    caption = "Source: https://www.kaggle.com/datasets/ibikunlegabriel/christmas-sales-and-trends/data"
+    caption = "Source: Onyx Data Challenge & https://www.kaggle.com/datasets/ibikunlegabriel/christmas-sales-and-trends/data"
   ) +
   theme_minimal() +
   theme(
