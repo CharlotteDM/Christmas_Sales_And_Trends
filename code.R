@@ -80,4 +80,55 @@ ggplot(sales_by_hour, aes(x = Hour, y = mean_sales)) +
     plot.caption = element_text(hjust = 0.5, size = 10) 
   )
 
+unique(christmas_sales$Category)
+
+#online and offline by hour
+online_sales_by_hour <- christmas_sales %>%
+  filter(OnlineOrderFlag == TRUE) %>%
+  group_by(Hour) %>%
+  summarise(mean_sales = round(mean(TotalPrice, na.rm = TRUE), 2))
+
+offline_sales_by_hour <- christmas_sales %>%
+  filter(OnlineOrderFlag == FALSE) %>%
+  group_by(Hour) %>%
+  summarise(mean_sales = round(mean(TotalPrice, na.rm = TRUE), 2))
+
+# Plot for Online Sales
+ggplot(online_sales_by_hour, aes(x = Hour, y = mean_sales)) +
+  geom_line(color = "blue", size = 1) + 
+  geom_point(color = "darkblue", size = 2) +
+  geom_label(aes(label = round(mean_sales, 2)), fill = "white", color = "darkblue", size = 3, label.padding = unit(0.15, "lines")) +  
+  labs(
+    title = "Average Online Sales by Hour of the Day", 
+    x = "Hour of the Day", 
+    y = "Average Sales Value",
+    caption = "Source: Onyx Data Challenge &\nhttps://www.kaggle.com/datasets/ibikunlegabriel/christmas-sales-and-trends/data") +
+  scale_x_continuous(breaks = online_sales_by_hour$Hour) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(color = "darkblue", size = 14, face = "bold", hjust = 0.5), 
+    axis.title.x = element_text(color = "darkblue", size = 12), 
+    axis.title.y = element_text(color = "darkblue", size = 12), 
+    plot.caption = element_text(hjust = 0.5, size = 10) 
+  )
+
+# Plot for Offline Sales
+ggplot(offline_sales_by_hour, aes(x = Hour, y = mean_sales)) +
+  geom_line(color = "green", size = 1) + 
+  geom_point(color = "darkgreen", size = 2) +
+  geom_label(aes(label = round(mean_sales, 2)), fill = "white", color = "darkgreen", size = 3, label.padding = unit(0.15, "lines")) +  
+  labs(
+    title = "Average Offline Sales by Hour of the Day", 
+    x = "Hour of the Day", 
+    y = "Average Sales Value",
+    caption = "Source: Onyx Data Challenge &\nhttps://www.kaggle.com/datasets/ibikunlegabriel/christmas-sales-and-trends/data"
+  ) +
+  scale_x_continuous(breaks = offline_sales_by_hour$Hour) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(color = "darkgreen", size = 14, face = "bold", hjust = 0.5), 
+    axis.title.x = element_text(color = "darkgreen", size = 12), 
+    axis.title.y = element_text(color = "darkgreen", size = 12), 
+    plot.caption = element_text(hjust = 0.5, size = 10) 
+  )
 
