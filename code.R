@@ -58,19 +58,20 @@ christmas_sales$Hour <- as.numeric(format(strptime(christmas_sales$Time, format 
 #average sale by hour
 sales_by_hour <- christmas_sales %>%
   group_by(Hour) %>%
-  summarise(mean_sales = mean(TotalPrice, na.rm = TRUE))
+  summarise(mean_sales = round(mean(TotalPrice, na.rm = TRUE), 2))
 
 
 ggplot(sales_by_hour, aes(x = Hour, y = mean_sales)) +
   geom_line(color = "darkgreen", size = 1) + 
   geom_point(color = "darkred", size = 2) +
-  geom_text(aes(label = round(mean_sales, 0)), color = "darkred", size = 3, vjust = -0.5) +  
+  geom_label(aes(label = round(mean_sales, 2)), fill = "white", color = "darkred", size = 3, label.padding = unit(0.15, "lines")) +  
   labs(
     title = "Average Sales by Hour of the Day", 
     x = "Hour of the Day", 
     y = "Average Sales Value",
-    caption = "Source: Onyx Data Challenge & https://www.kaggle.com/datasets/ibikunlegabriel/christmas-sales-and-trends/data"
+    caption = "Source: Onyx Data Challenge &\nhttps://www.kaggle.com/datasets/ibikunlegabriel/christmas-sales-and-trends/data"
   ) +
+  scale_x_continuous(breaks = sales_by_hour$Hour) +
   theme_minimal() +
   theme(
     plot.title = element_text(color = "darkred", size = 14, face = "bold", hjust = 0.5), 
