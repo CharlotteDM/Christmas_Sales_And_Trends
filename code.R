@@ -1,5 +1,9 @@
 library(ggplot2)
 library(dplyr)
+library(shiny)
+library(shinydashboard)
+library(shinythemes)
+library(shinyWidgets)
 
 path <- dirname(rstudioapi::getActiveDocumentContext()$path)
 print(path)
@@ -55,7 +59,7 @@ summary(anova_result) #no statistically significant differences
 #creating new column
 christmas_sales$Hour <- as.numeric(format(strptime(christmas_sales$Time, format = "%H:%M:%S"), "%H"))
 
-#average sale by hour
+#average sales by hour
 sales_by_hour <- christmas_sales %>%
   group_by(Hour) %>%
   summarise(mean_sales = round(mean(TotalPrice, na.rm = TRUE), 2))
@@ -81,6 +85,7 @@ ggplot(sales_by_hour, aes(x = Hour, y = mean_sales)) +
   )
 
 unique(christmas_sales$Category)
+unique((christmas_sales$Location))
 
 #online and offline by hour
 online_sales_by_hour <- christmas_sales %>%
