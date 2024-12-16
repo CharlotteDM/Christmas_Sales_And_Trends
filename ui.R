@@ -2,19 +2,11 @@ library(shiny)
 library(ggplot2)
 library(dplyr)
 library(shinydashboard)
-library(shinythemes)
 library(shinyWidgets)
 
-path <- dirname(rstudioapi::getActiveDocumentContext()$path)
-print(path)
-
-setwd(path)
-
-#Source of data: https://zoomcharts.com/en/microsoft-power-bi-custom-visuals/challenges/onyx-data-december-2023?utm_source=challenge&utm_medium=onyxdata&utm_campaign=onyxdata_web_december&utm_term=submit&utm_content=registration
+# load data
 christmas_sales <- read.csv("Christmas Sales and Trends.csv", stringsAsFactors = FALSE)
 christmas_sales$Hour <- as.numeric(format(strptime(christmas_sales$Time, format = "%H:%M:%S"), "%H"))
-
-
 
 # UI
 ui <- dashboardPage(
@@ -32,42 +24,44 @@ ui <- dashboardPage(
   dashboardBody(
     tags$head(
       tags$style(HTML("
-         .content-wrapper { background-color: #f5f5f5; }
-        .main-header .logo { background-color: #b71c1c !important; }
-        .skin-red .main-header .navbar { background-color: #d32f2f !important; }
-        .skin-red .main-header .navbar .sidebar-toggle { color: #fff; }
-        .skin-red .main-header .navbar .navbar-brand { color: #fff; }
-        .box { border-radius: 15px; }
-        
-        /* Czerwony pasek dla nagłówka wykresów */
-        .box-header {
-          background-color: #D32F2F !important;  /* Czerwony pasek */
-        }
-        
-        /* Kolor tytułu na białym tle */
-        .box-title {
-          color: white;  /* Kolor tekstu */
-          font-size: 18px;
-          font-weight: bold;
+      .content-wrapper { background-color: #f5f5f5; padding: 0; margin: 0; }
+      .main-header .logo { background-color: #b71c1c !important; }
+      .skin-red .main-header .navbar { background-color: #d32f2f !important; }
+      .skin-red .main-header .navbar .sidebar-toggle { color: #fff; }
+      .skin-red .main-header .navbar .navbar-brand { color: #fff; }
+      .box { border-radius: 15px; margin: 0; padding: 0; }
+      .box-header {
+        background-color: #D32F2F !important;  
+      }
+      .box-title {
+        color: white;  
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .main-sidebar { position: fixed; width: 250px; }
+      .main-panel { margin-left: 250px; }  /* Zwiększenie przestrzeni dla panelu wykresów */
+      .container-fluid { padding-left: 0; padding-right: 0; }
+      .content-wrapper { padding-left: 250px; }
+      .shiny-output-error { visibility: hidden; }  /* Usuwanie niepotrzebnych komunikatów o błędach */
       "))
     ),
     tabItems(
       tabItem(tabName = "hourly_sales",
               fluidRow(
                 box(title = "Hourly Sales", width = 12, status = "primary", solidHeader = TRUE,
-                    plotOutput("hourlySalesPlot", height = "600px"))
+                    plotOutput("hourlySalesPlot", height = "400px"))
               )
       ),
       tabItem(tabName = "age_gender",
               fluidRow(
                 box(title = "Sales by Age and Gender", width = 12, status = "primary", solidHeader = TRUE,
-                    plotOutput("ageGenderPlot", height = "600px"))
+                    plotOutput("ageGenderPlot", height = "400px"))
               )
       ),
       tabItem(tabName = "weather",
               fluidRow(
                 box(title = "Sales vs Weather", width = 12, status = "primary", solidHeader = TRUE,
-                    plotOutput("weatherPlot", height = "600px"))
+                    plotOutput("weatherPlot", height = "400px"))
               )
       ),
       tabItem(tabName = "category_sales",
@@ -76,13 +70,13 @@ ui <- dashboardPage(
                     pickerInput("category", "Select Category:", choices = unique(christmas_sales$Category), options = list(`live-search` = TRUE))
                 ),
                 box(title = "Product Category Sales", width = 8, status = "primary", solidHeader = TRUE,
-                    plotOutput("categorySalesPlot", height = "600px"))
+                    plotOutput("categorySalesPlot", height = "400px"))
               )
       ),
       tabItem(tabName = "satisfaction",
               fluidRow(
                 box(title = "Customer Satisfaction Distribution", width = 12, status = "primary", solidHeader = TRUE,
-                    plotOutput("satisfactionPlot", height = "600px"))
+                    plotOutput("satisfactionPlot", height = "400px"))
               )
       )
     ),
@@ -99,7 +93,7 @@ ui <- dashboardPage(
 # Server
 server <- function(input, output, session) {
   
-  # Reactive: preparing data for plots
+  # Reactive: przygotowanie danych do wykresów
   hourly_sales_data <- reactive({
     online_sales <- christmas_sales %>%
       filter(OnlineOrderFlag == TRUE) %>%
@@ -140,7 +134,7 @@ server <- function(input, output, session) {
     christmas_sales
   })
   
-  # Chart: "Hourly Sales"
+  #Chart: "Hourly Sales"
   output$hourlySalesPlot <- renderPlot({
     data <- hourly_sales_data()
     ggplot() +
@@ -151,7 +145,8 @@ server <- function(input, output, session) {
       theme_minimal() +
       theme(plot.title = element_text(color = "darkred", size = 18, face = "bold", hjust = 0.5),
             axis.title = element_text(size = 14),
-            axis.text = element_text(size = 12))
+            axis.text = element_text(size = 12),
+            plot.margin = unit(c(5, 5, 5, 5), "mm"))  
   })
   
   # Chart: "Sales by Age and Gender"
@@ -164,10 +159,11 @@ server <- function(input, output, session) {
       theme_minimal() +
       theme(plot.title = element_text(color = "darkgreen", size = 18, face = "bold", hjust = 0.5),
             axis.title = element_text(size = 14),
-            axis.text = element_text(size = 12))
+            axis.text = element_text(size = 12),
+            plot.margin = unit(c(5, 5, 5, 5), "mm"))  
   })
   
-  # Chart: "Sales vs Weather"
+  #Chart: "Sales vs Weather"
   output$weatherPlot <- renderPlot({
     data <- weather_data()
     ggplot(data, aes(x = Weather, y = mean_sales, fill = Weather)) +
@@ -179,7 +175,8 @@ server <- function(input, output, session) {
       theme(axis.text.x = element_text(angle = 45, hjust = 1),
             plot.title = element_text(color = "darkblue", size = 18, face = "bold", hjust = 0.5),
             axis.title = element_text(size = 14),
-            axis.text = element_text(size = 12))
+            axis.text = element_text(size = 12),
+            plot.margin = unit(c(5, 5, 5, 5), "mm"))  
   })
   
   # Chart: "Product Category Sales"
@@ -195,7 +192,8 @@ server <- function(input, output, session) {
       theme(axis.text.x = element_text(angle = 45, hjust = 1),
             plot.title = element_text(color = "goldenrod", size = 18, face = "bold", hjust = 0.5),
             axis.title = element_text(size = 14),
-            axis.text = element_text(size = 12))
+            axis.text = element_text(size = 12),
+            plot.margin = unit(c(5, 5, 5, 5), "mm")) 
   })
   
   # Chart: "Customer Satisfaction"
@@ -210,7 +208,8 @@ server <- function(input, output, session) {
       theme_minimal() +
       theme(plot.title = element_text(color = "goldenrod", size = 18, face = "bold", hjust = 0.5),
             axis.title = element_text(size = 14),
-            axis.text = element_text(size = 12))
+            axis.text = element_text(size = 12),
+            plot.margin = unit(c(5, 5, 5, 5), "mm"))  
   })
 }
 
