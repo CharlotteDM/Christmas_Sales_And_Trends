@@ -8,6 +8,9 @@ library(shinyWidgets)
 christmas_sales <- read.csv("Christmas Sales and Trends.csv", stringsAsFactors = FALSE)
 christmas_sales$Hour <- as.numeric(format(strptime(christmas_sales$Time, format = "%H:%M:%S"), "%H"))
 
+
+
+
 # UI
 ui <- dashboardPage(
   skin = "red", 
@@ -15,56 +18,57 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("Hourly Sales", tabName = "hourly_sales", icon = icon("clock")),
-      menuItem("Sales by Age and Gender", tabName = "age_gender", icon = icon("users")),
-      menuItem("Sales vs Weather", tabName = "weather", icon = icon("cloud")),
+      menuItem("Average Total Price by Age and Gender", tabName = "age_gender", icon = icon("users")),
+      menuItem("Average Total Price & Weather", tabName = "weather", icon = icon("cloud")),
       menuItem("Product Category Sales", tabName = "category_sales", icon = icon("tags")),
-      menuItem("Customer Satisfaction", tabName = "satisfaction", icon = icon("smile"))
+      menuItem("Customer Satisfaction", tabName = "satisfaction", icon = icon("smile")),
+      menuItem("Event Sales", tabName = "event_sales", icon = icon("calendar"))
     )
   ),
   dashboardBody(
     tags$head(
       tags$style(HTML("
-      .content-wrapper { background-color: #f5f5f5; padding: 0; margin: 0; }
-      .main-header .logo { background-color: #b71c1c !important; }
-      .skin-red .main-header .navbar { background-color: #d32f2f !important; }
-      .skin-red .main-header .navbar .sidebar-toggle { color: #fff; }
-      .skin-red .main-header .navbar .navbar-brand { color: #fff; }
-      .box { border-radius: 15px; margin: 0; padding: 0; }
-      .box-header {
-        background-color: #D32F2F !important;  
-      }
-      .box-title {
-        color: white;  
-        font-size: 18px;
-        font-weight: bold;
-      }
-      .main-sidebar { position: fixed; width: 250px; }
-      .main-panel { margin-left: 250px; }  /* Zwiększenie przestrzeni dla panelu wykresów */
-      .container-fluid { padding-left: 0; padding-right: 0; }
-      .content-wrapper { padding-left: 250px; }
-      .shiny-output-error { visibility: hidden; }  /* Usuwanie niepotrzebnych komunikatów o błędach */
+        .content-wrapper { background-color: #f5f5f5; padding: 0; margin: 0; }
+        .main-header .logo { background-color: #b71c1c !important; }
+        .skin-red .main-header .navbar { background-color: #d32f2f !important; }
+        .skin-red .main-header .navbar .sidebar-toggle { color: #fff; }
+        .skin-red .main-header .navbar .navbar-brand { color: #fff; }
+        .box { border-radius: 15px; margin: 0; padding: 0; }
+        .box-header {
+          background-color: #D32F2F !important;  
+        }
+        .box-title {
+          color: white;  
+          font-size: 18px;
+          font-weight: bold;
+        }
+        .main-sidebar { position: fixed; width: 250px; }
+        .main-panel { margin-left: 250px; }  
+        .container-fluid { padding-left: 0; padding-right: 0; }
+        .content-wrapper { padding-left: 250px; }
+        .shiny-output-error { visibility: hidden; }  
       "))
     ),
     tabItems(
-      tabItem(tabName = "hourly_sales",
+      tabItem(tabName = "hourly_sales", class = "tab-pane",
               fluidRow(
                 box(title = "Hourly Sales", width = 12, status = "primary", solidHeader = TRUE,
                     plotOutput("hourlySalesPlot", height = "400px"))
               )
       ),
-      tabItem(tabName = "age_gender",
+      tabItem(tabName = "age_gender", class = "tab-pane",
               fluidRow(
-                box(title = "Sales by Age and Gender", width = 12, status = "primary", solidHeader = TRUE,
+                box(title = "Average Total Price by Age and Gender", width = 12, status = "primary", solidHeader = TRUE,
                     plotOutput("ageGenderPlot", height = "400px"))
               )
       ),
-      tabItem(tabName = "weather",
+      tabItem(tabName = "weather", class = "tab-pane",
               fluidRow(
-                box(title = "Sales vs Weather", width = 12, status = "primary", solidHeader = TRUE,
+                box(title = "Average Total Price & Weather", width = 12, status = "primary", solidHeader = TRUE,
                     plotOutput("weatherPlot", height = "400px"))
               )
       ),
-      tabItem(tabName = "category_sales",
+      tabItem(tabName = "category_sales", class = "tab-pane",
               fluidRow(
                 box(title = "Filter", width = 4, status = "warning",
                     pickerInput("category", "Select Category:", choices = unique(christmas_sales$Category), options = list(`live-search` = TRUE))
@@ -73,22 +77,32 @@ ui <- dashboardPage(
                     plotOutput("categorySalesPlot", height = "400px"))
               )
       ),
-      tabItem(tabName = "satisfaction",
+      tabItem(tabName = "satisfaction", class = "tab-pane",
               fluidRow(
                 box(title = "Customer Satisfaction Distribution", width = 12, status = "primary", solidHeader = TRUE,
                     plotOutput("satisfactionPlot", height = "400px"))
               )
+      ),
+      tabItem(tabName = "event_sales", class = "tab-pane",
+              fluidRow(
+                box(title = "Event Filter", width = 4, status = "warning",
+                    pickerInput("event", "Select Event:", choices = unique(christmas_sales$Event), options = list(`live-search` = TRUE))
+                ),
+                box(title = "Event Sales (Mean Total Price)", width = 8, status = "primary", solidHeader = TRUE,
+                    plotOutput("eventSalesPlot", height = "400px"))
+              )
       )
     ),
-    tags$footer(
-      style = "text-align: center; padding: 10px; background: #b71c1c; color: white;",
-      "Source of Data: ",
-      tags$a(href = "https://zoomcharts.com/en/microsoft-power-bi-custom-visuals/challenges/onyx-data-december-2023?utm_source=challenge&utm_medium=onyxdata&utm_campaign=onyxdata_web_december&utm_term=submit&utm_content=registration",
-             "https://zoomcharts.com", target = "_blank"),
-      " | Merry Christmas! 🎄"
+      tags$footer(
+        style = "text-align: center; padding: 10px; background: #b71c1c; color: white;",
+        "Source of Data: ",
+        tags$a(href = "https://zoomcharts.com/en/microsoft-power-bi-custom-visuals/challenges/onyx-data-december-2023?utm_source=challenge&utm_medium=onyxdata&utm_campaign=onyxdata_web_december&utm_term=submit&utm_content=registration",
+               "https://zoomcharts.com", target = "_blank"),
+        " | Merry Christmas! 🎄"
+      )
     )
   )
-)
+
 
 # Server
 server <- function(input, output, session) {
@@ -122,7 +136,7 @@ server <- function(input, output, session) {
       summarise(mean_sales = mean(TotalPrice, na.rm = TRUE))
   })
   
-  # Reactive: Product Category Sales"
+  # Reactive: Product Category Sales
   category_sales_data <- reactive({
     req(input$category)
     christmas_sales %>%
@@ -134,7 +148,16 @@ server <- function(input, output, session) {
     christmas_sales
   })
   
-  #Chart: "Hourly Sales"
+  # Reactive: "Event"
+  event_sales_data <- reactive({
+    req(input$event)
+    christmas_sales %>%
+      filter(Event == input$event) %>%
+      group_by(Event) %>%
+      summarise(mean_total_price = mean(TotalPrice, na.rm = TRUE))
+  })
+  
+  # Chart: "Hourly Sales"
   output$hourlySalesPlot <- renderPlot({
     data <- hourly_sales_data()
     ggplot() +
@@ -149,13 +172,13 @@ server <- function(input, output, session) {
             plot.margin = unit(c(5, 5, 5, 5), "mm"))  
   })
   
-  # Chart: "Sales by Age and Gender"
+  # Chart: "Average Total Price by Age and Gender"
   output$ageGenderPlot <- renderPlot({
     data <- age_gender_data()
     ggplot(data, aes(x = Age, y = Gender, fill = mean_sales)) +
       geom_tile() +
       scale_fill_gradient(low = "#F0E68C", high = "#8B0000") +
-      labs(title = "Average Sales by Gender and Age", x = "Age", y = "Gender", fill = "Average Sale") +
+      labs(title = "Average Total Price by Gender and Age", x = "Age", y = "Gender", fill = "Average Total Price") +
       theme_minimal() +
       theme(plot.title = element_text(color = "darkgreen", size = 18, face = "bold", hjust = 0.5),
             axis.title = element_text(size = 14),
@@ -163,55 +186,56 @@ server <- function(input, output, session) {
             plot.margin = unit(c(5, 5, 5, 5), "mm"))  
   })
   
-  #Chart: "Sales vs Weather"
+  # Chart: "Average Total Price & Weather"
   output$weatherPlot <- renderPlot({
     data <- weather_data()
     ggplot(data, aes(x = Weather, y = mean_sales, fill = Weather)) +
       geom_bar(stat = "identity", show.legend = FALSE) +
-      geom_text(aes(label = round(mean_sales, 2)), vjust = -0.5, size = 5) +
-      scale_fill_manual(values = c("Sunny" = "#FFD700", "Cloudy" = "#ADD8E6", "Rainy" = "#006400")) +
-      labs(title = "Average Sale and Weather", x = "Weather", y = "Average Sale", fill = "Weather") +
+      geom_text(aes(label = round(mean_sales, 2)), vjust = -0.5, size = 5, color = "black") +
+      labs(title = "Average Sales by Weather Condition", x = "Weather Condition", y = "Average Sales") +
       theme_minimal() +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1),
-            plot.title = element_text(color = "darkblue", size = 18, face = "bold", hjust = 0.5),
+      theme(plot.title = element_text(color = "darkblue", size = 18, face = "bold", hjust = 0.5),
             axis.title = element_text(size = 14),
-            axis.text = element_text(size = 12),
-            plot.margin = unit(c(5, 5, 5, 5), "mm"))  
+            axis.text = element_text(size = 12))
   })
   
   # Chart: "Product Category Sales"
   output$categorySalesPlot <- renderPlot({
     data <- category_sales_data()
-    ggplot(data, aes(x = ProductName, y = TotalPrice, fill = ProductName)) +
-      geom_bar(stat = "summary", fun = "sum", width = 0.7, show.legend = FALSE) +
-      geom_text(stat = "summary", fun = "sum", aes(label = round(..y.., 2)), 
-                vjust = -0.5, size = 5, color = "black") +
-      scale_fill_manual(values = rep("#8B4513", nrow(data))) +
-      labs(title = paste("Sales for Category:", input$category), x = "Product", y = "Total Sales") +
+    ggplot(data, aes(x = Category, y = TotalPrice, fill = Category)) +
+      geom_bar(stat = "identity", show.legend = FALSE) +
+      labs(title = "Sales by Product Category", x = "Category", y = "Total Sales") +
       theme_minimal() +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1),
-            plot.title = element_text(color = "goldenrod", size = 18, face = "bold", hjust = 0.5),
+      theme(plot.title = element_text(color = "darkorange", size = 18, face = "bold", hjust = 0.5),
             axis.title = element_text(size = 14),
-            axis.text = element_text(size = 12),
-            plot.margin = unit(c(5, 5, 5, 5), "mm")) 
+            axis.text = element_text(size = 12))
   })
   
   # Chart: "Customer Satisfaction"
   output$satisfactionPlot <- renderPlot({
     data <- satisfaction_data()
-    
-    ggplot(data, aes(x = CustomerSatisfaction)) +
-      geom_histogram(binwidth = 0.5, fill = "#006400", color = "black", position = "dodge", size = 1) +
-      geom_text(stat = "bin", aes(label = ifelse(..count.. > 0, ..count.., "")), 
-                vjust = -0.5, size = 5, face = "bold", color = "black") +
-      labs(title = "Customer Satisfaction Distribution", x = "Satisfaction Score", y = "Frequency") +
+    ggplot(data, aes(x = Satisfaction, y = ..density..)) +
+      geom_histogram(fill = "#D32F2F", binwidth = 1) +
+      labs(title = "Customer Satisfaction Distribution", x = "Satisfaction Level", y = "Density") +
       theme_minimal() +
       theme(plot.title = element_text(color = "goldenrod", size = 18, face = "bold", hjust = 0.5),
             axis.title = element_text(size = 14),
-            axis.text = element_text(size = 12),
-            plot.margin = unit(c(5, 5, 5, 5), "mm"))  
+            axis.text = element_text(size = 12))
+  })
+  
+  # Chart: "Event Sales"
+  output$eventSalesPlot <- renderPlot({
+    data <- event_sales_data()
+    ggplot(data, aes(x = Event, y = mean_total_price)) +
+      geom_bar(stat = "identity", fill = "darkgreen", show.legend = FALSE) +
+      geom_text(aes(label = round(mean_total_price, 2)), vjust = -0.5, size = 5, color = "black") +
+      labs(title = paste("Average Total Price for Event:", input$event), x = "Event", y = "Mean Total Price") +
+      theme_minimal() +
+      theme(plot.title = element_text(color = "goldenrod", size = 18, face = "bold", hjust = 0.5),
+            axis.title = element_text(size = 14),
+            axis.text = element_text(size = 12))
   })
 }
 
-# start app
-shinyApp(ui = ui, server = server)
+# Uruchomienie aplikacji
+shinyApp(ui, server)
