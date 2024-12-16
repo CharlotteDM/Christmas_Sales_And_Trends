@@ -53,19 +53,19 @@ ui <- dashboardPage(
       tabItem(tabName = "hourly_sales", class = "tab-pane",
               fluidRow(
                 box(title = "Hourly Sales", width = 12, status = "primary", solidHeader = TRUE,
-                    plotOutput("hourlySalesPlot", height = "400px"))
+                    plotOutput("hourlySalesPlot", height = "600px"))  # Zwiększ wysokość wykresu
               )
       ),
       tabItem(tabName = "age_gender", class = "tab-pane",
               fluidRow(
                 box(title = "Average Total Price by Age and Gender", width = 12, status = "primary", solidHeader = TRUE,
-                    plotOutput("ageGenderPlot", height = "400px"))
+                    plotOutput("ageGenderPlot", height = "600px"))  # Zwiększ wysokość wykresu
               )
       ),
       tabItem(tabName = "weather", class = "tab-pane",
               fluidRow(
                 box(title = "Average Total Price & Weather", width = 12, status = "primary", solidHeader = TRUE,
-                    plotOutput("weatherPlot", height = "400px"))
+                    plotOutput("weatherPlot", height = "600px"))  # Zwiększ wysokość wykresu
               )
       ),
       tabItem(tabName = "category_sales", class = "tab-pane",
@@ -74,13 +74,13 @@ ui <- dashboardPage(
                     pickerInput("category", "Select Category:", choices = unique(christmas_sales$Category), options = list(`live-search` = TRUE))
                 ),
                 box(title = "Product Category Sales", width = 8, status = "primary", solidHeader = TRUE,
-                    plotOutput("categorySalesPlot", height = "400px"))
+                    plotOutput("categorySalesPlot", height = "600px"))  # Zwiększ wysokość wykresu
               )
       ),
       tabItem(tabName = "satisfaction", class = "tab-pane",
               fluidRow(
                 box(title = "Customer Satisfaction Distribution", width = 12, status = "primary", solidHeader = TRUE,
-                    plotOutput("satisfactionPlot", height = "400px"))
+                    plotOutput("satisfactionPlot", height = "600px"))  # Zwiększ wysokość wykresu
               )
       ),
       tabItem(tabName = "event_sales", class = "tab-pane",
@@ -89,19 +89,19 @@ ui <- dashboardPage(
                     pickerInput("event", "Select Event:", choices = unique(christmas_sales$Event), options = list(`live-search` = TRUE))
                 ),
                 box(title = "Event Sales (Mean Total Price)", width = 8, status = "primary", solidHeader = TRUE,
-                    plotOutput("eventSalesPlot", height = "400px"))
+                    plotOutput("eventSalesPlot", height = "600px"))  # Zwiększ wysokość wykresu
               )
       )
     ),
-      tags$footer(
-        style = "text-align: center; padding: 10px; background: #b71c1c; color: white;",
-        "Source of Data: ",
-        tags$a(href = "https://zoomcharts.com/en/microsoft-power-bi-custom-visuals/challenges/onyx-data-december-2023?utm_source=challenge&utm_medium=onyxdata&utm_campaign=onyxdata_web_december&utm_term=submit&utm_content=registration",
-               "https://zoomcharts.com", target = "_blank"),
-        " | Merry Christmas! 🎄"
-      )
+    tags$footer(
+      style = "text-align: center; padding: 10px; background: #b71c1c; color: white;",
+      "Source of Data: ",
+      tags$a(href = "https://zoomcharts.com/en/microsoft-power-bi-custom-visuals/challenges/onyx-data-december-2023?utm_source=challenge&utm_medium=onyxdata&utm_campaign=onyxdata_web_december&utm_term=submit&utm_content=registration",
+             "https://zoomcharts.com", target = "_blank"),
+      " | Merry Christmas! 🎄"
     )
   )
+)
 
 
 # Server
@@ -140,12 +140,17 @@ server <- function(input, output, session) {
   category_sales_data <- reactive({
     req(input$category)
     christmas_sales %>%
-      filter(Category == input$category)
+      filter(Category == input$category) %>%
+      group_by(Category) %>%
+      summarise(mean_total_price = mean(TotalPrice, na.rm = TRUE))
   })
+  
   
   # Reactive: "Customer Satisfaction"
   satisfaction_data <- reactive({
-    christmas_sales
+    req(christmas_sales$CustomerSatisfaction) 
+    christmas_sales %>%
+      select(CustomerSatisfaction)
   })
   
   # Reactive: "Event"
@@ -202,26 +207,50 @@ server <- function(input, output, session) {
   # Chart: "Product Category Sales"
   output$categorySalesPlot <- renderPlot({
     data <- category_sales_data()
-    ggplot(data, aes(x = Category, y = TotalPrice, fill = Category)) +
-      geom_bar(stat = "identity", show.legend = FALSE) +
-      labs(title = "Sales by Product Category", x = "Category", y = "Total Sales") +
+    
+    ggplot(data, aes(x = Category, y = mean_total_price)) +
+      geom_bar(stat = "identity", fill = "darkgreen", show.legend = FALSE) +
+      geom_text(aes(label = round(mean_total_price, 2)), vjust = -0.5, size = 5, color = "black") +
+      labs(
+        title = "Sales by Product Category", 
+        x = "Category", 
+        y = "Mean Total Sales"
+      ) +
       theme_minimal() +
-      theme(plot.title = element_text(color = "darkorange", size = 18, face = "bold", hjust = 0.5),
-            axis.title = element_text(size = 14),
-            axis.text = element_text(size = 12))
+      theme(
+        plot.title = element_text(color = "goldenrod", size = 18, face = "bold", hjust = 0.5),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12)
+      )
   })
+  
+  
   
   # Chart: "Customer Satisfaction"
   output$satisfactionPlot <- renderPlot({
     data <- satisfaction_data()
-    ggplot(data, aes(x = Satisfaction, y = ..density..)) +
-      geom_histogram(fill = "#D32F2F", binwidth = 1) +
-      labs(title = "Customer Satisfaction Distribution", x = "Satisfaction Level", y = "Density") +
+    if (!"CustomerSatisfaction" %in% colnames(data)) {
+      showNotification("Satisfaction column is missing in the dataset.", type = "error")
+      return(NULL)
+    }
+    
+    ggplot(data, aes(x = as.factor(CustomerSatisfaction))) +  
+      geom_bar(fill = "#D32F2F", color = "black",width = 0.8) +
+      geom_text(stat = "count", aes(label = ..count..),  vjust = -0.5,size = 5, color = "black") +
+      labs(
+        title = "Customer Satisfaction Distribution", 
+        x = "Satisfaction Level", 
+        y = "Count"
+      ) +
       theme_minimal() +
-      theme(plot.title = element_text(color = "goldenrod", size = 18, face = "bold", hjust = 0.5),
-            axis.title = element_text(size = 14),
-            axis.text = element_text(size = 12))
+      theme(
+        plot.title = element_text(color = "goldenrod", size = 18, face = "bold", hjust = 0.5),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12)
+      )
   })
+  
+  
   
   # Chart: "Event Sales"
   output$eventSalesPlot <- renderPlot({
