@@ -3,6 +3,7 @@ library(ggplot2)
 library(dplyr)
 library(shinydashboard)
 library(shinyWidgets)
+library(rsconnect)
 
 # load data
 christmas_sales <- read.csv("Christmas Sales and Trends.csv", stringsAsFactors = FALSE)
@@ -42,6 +43,7 @@ ui <- dashboardPage(
           font-size: 18px;
           font-weight: bold;
         }
+
         .main-sidebar { position: fixed; width: 250px; }
         .main-panel { margin-left: 250px; }  
         .container-fluid { padding-left: 0; padding-right: 0; }
@@ -53,7 +55,7 @@ ui <- dashboardPage(
       tabItem(tabName = "hourly_sales", class = "tab-pane",
               fluidRow(
                 box(title = "Hourly Sales", width = 12, status = "primary", solidHeader = TRUE,
-                    plotOutput("hourlySalesPlot", height = "600px"))  # Zwiększ wysokość wykresu
+                    plotOutput("hourlySalesPlot", height = "400px"))  # Zwiększ wysokość wykresu
               )
       ),
       tabItem(tabName = "age_gender", class = "tab-pane",
@@ -129,6 +131,7 @@ server <- function(input, output, session) {
       summarise(mean_sales = mean(TotalPrice, na.rm = TRUE))
   })
   
+  
   # Reactive: "Sales vs Weather"
   weather_data <- reactive({
     christmas_sales %>%
@@ -194,15 +197,24 @@ server <- function(input, output, session) {
   # Chart: "Average Total Price & Weather"
   output$weatherPlot <- renderPlot({
     data <- weather_data()
+    
     ggplot(data, aes(x = Weather, y = mean_sales, fill = Weather)) +
       geom_bar(stat = "identity", show.legend = FALSE) +
       geom_text(aes(label = round(mean_sales, 2)), vjust = -0.5, size = 5, color = "black") +
-      labs(title = "Average Sales by Weather Condition", x = "Weather Condition", y = "Average Sales") +
+      scale_fill_manual(
+        values = c("Sunny" = "#FFD700",    # Złoty dla "Sunny"
+                   "Rainy" = "#B22222",    # Ciemnoczerwony dla "Rainy"
+                   "Snowy" = "#008000")    # Zielony dla "Snowy"
+      ) +
+      labs(title = "Average Sales by Weather Condition", 
+           x = "Weather Condition", 
+           y = "Average Sales") +
       theme_minimal() +
       theme(plot.title = element_text(color = "darkblue", size = 18, face = "bold", hjust = 0.5),
             axis.title = element_text(size = 14),
             axis.text = element_text(size = 12))
   })
+  
   
   # Chart: "Product Category Sales"
   output$categorySalesPlot <- renderPlot({
@@ -268,3 +280,10 @@ server <- function(input, output, session) {
 
 # Uruchomienie aplikacji
 shinyApp(ui, server)
+
+
+
+
+
+
+
