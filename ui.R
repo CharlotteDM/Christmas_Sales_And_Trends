@@ -186,15 +186,15 @@ server <- function(input, output, session) {
     data <- age_gender_category_data()
     ggplot(data, aes(x = Age, y = Gender, fill = mean_sales)) +
       geom_tile() +
-      facet_wrap(~ Category) +  # Dodajemy facetowanie według kategorii produktów
+      facet_wrap(~ Category) +  
       scale_fill_gradient(low = "#F0E68C", high = "#8B0000") +
       labs(title = "Average Total Price by Gender, Age, and Product Category", x = "Age", y = "Gender", fill = "Average Total Price") +
       theme_minimal() +
       theme(plot.title = element_text(color = "darkgreen", size = 18, face = "bold", hjust = 0.5),
             axis.title = element_text(size = 14),
             axis.text = element_text(size = 12),
-            strip.text = element_text(size = 12, face = "bold"),  # Styl dla nazw kategorii
-            plot.margin = unit(c(5, 5, 5, 5), "mm"))  # Dostosowanie marginesów
+            strip.text = element_text(size = 12, face = "bold"),  
+            plot.margin = unit(c(5, 5, 5, 5), "mm"))  
   })
   
   # Chart: "Average Total Price & Weather"
