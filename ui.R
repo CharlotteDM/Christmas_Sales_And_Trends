@@ -55,19 +55,19 @@ ui <- dashboardPage(
       tabItem(tabName = "hourly_sales", class = "tab-pane",
               fluidRow(
                 box(title = "Hourly Sales", width = 12, status = "primary", solidHeader = TRUE,
-                    plotOutput("hourlySalesPlot", height = "240px"))  # Zwiększ wysokość wykresu
+                    plotOutput("hourlySalesPlot", height = "320px"))  # Zwiększ wysokość wykresu
               )
       ),
       tabItem(tabName = "age_gender", class = "tab-pane",
               fluidRow(
                 box(title = "Average Total Price by Age and Gender", width = 12, status = "primary", solidHeader = TRUE,
-                    plotOutput("ageGenderPlot", height = "240px"))  # Zwiększ wysokość wykresu
+                    plotOutput("ageGenderPlot", height = "320px"))  # Zwiększ wysokość wykresu
               )
       ),
       tabItem(tabName = "weather", class = "tab-pane",
               fluidRow(
                 box(title = "Average Total Price & Weather", width = 12, status = "primary", solidHeader = TRUE,
-                    plotOutput("weatherPlot", height = "240px"))  # Zwiększ wysokość wykresu
+                    plotOutput("weatherPlot", height = "320px"))  # Zwiększ wysokość wykresu
               )
       ),
       tabItem(tabName = "category_sales", class = "tab-pane",
@@ -76,13 +76,13 @@ ui <- dashboardPage(
                     pickerInput("category", "Select Category:", choices = unique(christmas_sales$Category), options = list(`live-search` = TRUE))
                 ),
                 box(title = "Product Category Sales", width = 8, status = "primary", solidHeader = TRUE,
-                    plotOutput("categorySalesPlot", height = "240px"))  # Zwiększ wysokość wykresu
+                    plotOutput("categorySalesPlot", height = "320px"))  # Zwiększ wysokość wykresu
               )
       ),
       tabItem(tabName = "satisfaction", class = "tab-pane",
               fluidRow(
                 box(title = "Customer Satisfaction Distribution", width = 12, status = "primary", solidHeader = TRUE,
-                    plotOutput("satisfactionPlot", height = "240px"))  # Zwiększ wysokość wykresu
+                    plotOutput("satisfactionPlot", height = "320px"))  # Zwiększ wysokość wykresu
               )
       ),
       tabItem(tabName = "event_sales", class = "tab-pane",
@@ -91,7 +91,7 @@ ui <- dashboardPage(
                     pickerInput("event", "Select Event:", choices = unique(christmas_sales$Event), options = list(`live-search` = TRUE))
                 ),
                 box(title = "Event Sales (Mean Total Price)", width = 8, status = "primary", solidHeader = TRUE,
-                    plotOutput("eventSalesPlot", height = "240px"))  # Zwiększ wysokość wykresu
+                    plotOutput("eventSalesPlot", height = "320px"))  # Zwiększ wysokość wykresu
               )
       )
     ),
@@ -203,7 +203,7 @@ server <- function(input, output, session) {
     
     ggplot(data, aes(x = Weather, y = mean_sales, fill = Weather)) +
       geom_bar(stat = "identity", show.legend = FALSE) +
-      geom_text(aes(label = round(mean_sales, 2)), vjust = -0.5, size = 5, color = "black") +
+      geom_text(aes(label = round(mean_sales, 2)), vjust = 2, size = 5, color = "white") +
       scale_fill_manual(
         values = c("Sunny" = "#FFD700",   
                    "Rainy" = "#B22222",    
@@ -213,10 +213,13 @@ server <- function(input, output, session) {
            x = "Weather Condition", 
            y = "Average Sales") +
       theme_minimal() +
-      theme(plot.title = element_text(color = "darkblue", size = 18, face = "bold", hjust = 0.5),
+      theme(plot.title = element_text(color = "darkblue", size = 18, face = "bold", hjust = 0.5, vjust = 1.2),
             axis.title = element_text(size = 14),
-            axis.text = element_text(size = 12))
+            axis.text = element_text(size = 12),
+            plot.margin = unit(c(15, 5, 5, 5), "mm") 
+            )
   })
+  
   
   
   # Chart: "Product Category Sales"
@@ -225,7 +228,7 @@ server <- function(input, output, session) {
     
     ggplot(data, aes(x = Category, y = mean_total_price)) +
       geom_bar(stat = "identity", fill = "darkgreen", show.legend = FALSE) +
-      geom_text(aes(label = round(mean_total_price, 2)), vjust = -0.5, size = 5, color = "black") +
+      geom_text(aes(label = round(mean_total_price, 2)), vjust = 2, size = 5, color = "white") +
       labs(
         title = "Sales by Product Category", 
         x = "Category", 
@@ -251,7 +254,7 @@ server <- function(input, output, session) {
     
     ggplot(data, aes(x = as.factor(CustomerSatisfaction))) +  
       geom_bar(fill = "#D32F2F", color = "black",width = 0.8) +
-      geom_text(stat = "count", aes(label = ..count..),  vjust = -0.5,size = 5, color = "black") +
+      geom_text(stat = "count", aes(label = ..count..),  vjust = 2,size = 5, color = "white") +
       labs(
         title = "Customer Satisfaction Distribution", 
         x = "Satisfaction Level", 
@@ -272,7 +275,7 @@ server <- function(input, output, session) {
     data <- event_sales_data()
     ggplot(data, aes(x = Event, y = mean_total_price)) +
       geom_bar(stat = "identity", fill = "darkgreen", show.legend = FALSE) +
-      geom_text(aes(label = round(mean_total_price, 2)), vjust = -0.5, size = 5, color = "black") +
+      geom_text(aes(label = round(mean_total_price, 2)), vjust = 2, size = 5, color = "white") +
       labs(title = paste("Average Total Price for Event:", input$event), x = "Event", y = "Mean Total Price") +
       theme_minimal() +
       theme(plot.title = element_text(color = "goldenrod", size = 18, face = "bold", hjust = 0.5),
