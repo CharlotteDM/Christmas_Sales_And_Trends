@@ -44,11 +44,14 @@ ui <- dashboardPage(
           font-weight: bold;
         }
 
-        .main-sidebar { position: fixed; width: 250px; }
-        .main-panel { margin-left: 250px; }  
+        .main-sidebar { position: fixed; width: 300px; }
+        .main-panel { margin-left: 300px; }  
         .container-fluid { padding-left: 0; padding-right: 0; }
-        .content-wrapper { padding-left: 250px; }
+        .content-wrapper { padding-left: 300px; }
         .shiny-output-error { visibility: hidden; }  
+        .main-header .sidebar-toggle {
+        display: none !important;
+        }
       "))
     ),
     tabItems(
