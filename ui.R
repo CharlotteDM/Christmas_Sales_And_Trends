@@ -15,7 +15,7 @@ christmas_sales$Hour <- as.numeric(format(strptime(christmas_sales$Time, format 
 # UI
 ui <- dashboardPage(
   skin = "red", 
-  dashboardHeader(title = "🎄 Christmas Sales Dashboard 🎅"),
+  dashboardHeader(title = span("🎄 Christmas Sales Dashboard 🎅", id = "header-title")),
   dashboardSidebar(
     sidebarMenu(
       menuItem("Hourly Sales", tabName = "hourly_sales", icon = icon("clock")),
@@ -107,7 +107,6 @@ ui <- dashboardPage(
     )
   )
 )
-
 
 # Server
 server <- function(input, output, session) {
